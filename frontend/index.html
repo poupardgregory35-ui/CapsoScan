@@ -678,7 +678,7 @@
             ui.previewWrapper.innerHTML = '';
             ui.previewWrapper.appendChild(canvas);
             const enhancedCanvas = enhanceImageForOCR(canvas);
-            currentImageSource = enhancedCanvas;
+            currentImageSource = enhancedCanvas.toDataURL('image/jpeg', 0.9);
         }
 
         function enhanceImageForOCR(canvas) {
