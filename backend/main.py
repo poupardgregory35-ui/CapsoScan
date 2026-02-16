@@ -4,9 +4,9 @@ from models import ScanResponse, Validation
 from validators import calculate_compliance_score
 from datetime import datetime
 import uuid
-from typing import List
+from typing import List, Optional, Any
 
-app = FastAPI(title="CapsoScan API", version="1.0.0")
+app = FastAPI(title="CaspoScan API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,6 +29,7 @@ async def scan_pda(
     rpps: Optional[str] = Form(None),
     finess: Optional[str] = Form(None),
     typologie: Optional[str] = Form("UNITAIRE"),
+    hasSignature: Optional[str] = Form("true"),
     file: UploadFile = File(...)
 ):
     # Simulation OCR
@@ -37,11 +38,13 @@ async def scan_pda(
     
     rpps_val = rpps if rpps else ""
     finess_val = finess if finess else ""
-    has_signature = True # Simulé
+    
+    # Conversion du string "true"/"false" en boolean Python
+    has_sig_bool = str(hasSignature).lower() == "true"
     
     score, alerts = calculate_compliance_score(
         prescripteur_type="INDIVIDUEL", # Sera détecté auto par le moteur
-        has_signature=has_signature,
+        has_signature=has_sig_bool,
         rpps=rpps_val,
         finess=finess_val,
         typologie=typologie
