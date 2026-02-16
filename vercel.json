@@ -1,16 +1,8 @@
 {
-    "version": 2,
-    "name": "capsoscan-frontend",
-    "builds": [
+    "rewrites": [
         {
-            "src": "frontend/**",
-            "use": "@vercel/static"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "/frontend/$1"
+            "source": "/(.*)",
+            "destination": "/frontend/index.html"
         }
     ],
     "headers": [
@@ -32,7 +24,5 @@
             ]
         }
     ],
-    "env": {
-        "API_URL": "https://capsoscan-api-xxxxx.run.app"
-    }
+    "cleanUrls": true
 }
