@@ -82,8 +82,7 @@
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             // Pour la démo, on simule une détection basée sur le document (Établissement si SAMU/CHU/HOPITAL)
-            // On peut forcer un cas parfait pour la démo
-            const isEtablissement = true; // Forcé en Établissement pour le cas SAMU 35
+            const isEtablissement = true;
 
             if (isEtablissement) {
                 return {
@@ -93,7 +92,7 @@
                     cachet: "present",
                     nom: "HOUEE",
                     prenom: "Yuna",
-                    raw: `FINESS: 350000741\nCachet: présent\nSAMU 35 - CHU RENNES`
+                    raw: `FINESS: 350000741\nCachet: présent\nSAMU 35 - CHU RENNES\nSituation: [X] Entrée/sortie d'hospitalisation\nTransport: [X] Ambulance (position allongée)`
                 };
             } else {
                 return {
@@ -103,7 +102,7 @@
                     cachet: "present",
                     nom: "DUPONT",
                     prenom: "Jean",
-                    raw: `RPPS: 12345678901\nCachet: présent\nDr DUPONT Jean`
+                    raw: `RPPS: 12345678901\nCachet: présent\nDr DUPONT Jean\nSituation: [X] ALD exonérante\nTransport: [X] VSL`
                 };
             }
         }
@@ -115,26 +114,23 @@
 
             // Valider selon le type de structure
             if (ocrData.type === "etablissement") {
-                // Établissement : FINESS obligatoire
                 if (!ocrData.finess) {
                     totalScore += SCORING_RULES.FINESS.penalite;
                     details.push({ champ: "FINESS", status: "❌", message: SCORING_RULES.FINESS.message });
                 } else {
                     details.push({ champ: "FINESS", status: "✅", message: "FINESS valide" });
                 }
-                details.push({ champ: "RPPS", status: "⏸️", message: "Non requis (établissement)" });
+                details.push({ champ: "RPPS", status: "⏸️", message: "Non requis (éts)" });
             } else {
-                // Libéral : RPPS obligatoire
                 if (!ocrData.rpps) {
                     totalScore += SCORING_RULES.RPPS.penalite;
                     details.push({ champ: "RPPS", status: "❌", message: SCORING_RULES.RPPS.message });
                 } else {
                     details.push({ champ: "RPPS", status: "✅", message: "RPPS valide" });
                 }
-                details.push({ champ: "FINESS", status: "⏸️", message: "Optionnel (libéral)" });
+                details.push({ champ: "FINESS", status: "⏸️", message: "Optionnel (lib)" });
             }
 
-            // Cachet toujours obligatoire
             if (ocrData.cachet !== "present") {
                 totalScore += SCORING_RULES.CACHET.penalite;
                 details.push({ champ: "Cachet", status: "❌", message: SCORING_RULES.CACHET.message });
@@ -142,7 +138,6 @@
                 details.push({ champ: "Cachet", status: "✅", message: "Cachet présent" });
             }
 
-            // Nom/Prénom toujours obligatoires pour le calcul mais masqués pour l'affichage (HDS)
             if (!ocrData.nom) totalScore += SCORING_RULES.NOM.penalite;
             if (!ocrData.prenom) totalScore += SCORING_RULES.PRENOM.penalite;
 
@@ -151,11 +146,41 @@
 
         // === Fonction d'affichage des résultats ===
         function displayResults(ocrData, scoreResult) {
-            // Calcul du pourcentage (Score 0 = 100%, Score -120 = 0%)
+            const raw = ocrData.raw || "";
+
+            // 1. Détection des situations (basée sur raw text simplifié)
+            const situation = {
+                hospitalisation: raw.includes("hospitalisation"),
+                aldExonerante: raw.includes("ALD exonérante"),
+                aldNonExonerante: raw.includes("ALD non exonérante"),
+                atMp: raw.includes("travail") || raw.includes("AT/MP")
+            };
+
+            // 2. Détection du mode de transport
+            const transport = {
+                ambulance: raw.includes("Ambulance") || raw.includes("allongée"),
+                vslTaxi: raw.includes("VSL") || raw.includes("taxi"),
+                individuel: raw.includes("individuel")
+            };
+
+            // 3. Logique de Prise en Charge
+            let priseEnCharge = "Ticket modérateur standard (65%)";
+            let pecDetails = "Reste à charge patient ou mutuelle.";
+
+            if (ocrData.type === "etablissement" && raw.includes("SAMU")) {
+                priseEnCharge = "✅ 100% CPAM (Urgence SAMU)";
+                pecDetails = "Prise en charge intégrale sans formalité ALD.";
+            } else if (situation.aldExonerante) {
+                priseEnCharge = "✅ 100% CPAM (ALD exonérante)";
+                pecDetails = "Facturation directe en tiers-payant.";
+            } else if (situation.atMp) {
+                priseEnCharge = "✅ 100% CPAM (AT/MP)";
+                pecDetails = "Couverture accident du travail.";
+            }
+
+            // 4. Scoring & Couleurs
             const maxPenalty = -120;
             const percentage = Math.max(0, Math.min(100, 100 - (Math.abs(scoreResult.totalScore) / Math.abs(maxPenalty) * 100)));
-
-            // Déterminer la couleur selon le pourcentage
             let color = "NOIR";
             if (percentage >= 100) color = "VERT";
             else if (percentage >= 75) color = "BLEU";
@@ -164,35 +189,79 @@
 
             const colorClass = COLOR_THRESHOLDS[color].class;
 
-            // Construire le HTML des résultats
-            let detailsHtml = scoreResult.details.map(d =>
-                `<div class="flex items-center text-sm mb-1">
-                    <span class="w-12">${d.status}</span>
-                    <span class="w-20 font-medium">${d.champ}:</span>
-                    <span class="text-opacity-90 font-semibold">${d.message}</span>
-                </div>`
-            ).join('');
-
             resultDiv.innerHTML = `
-                <div class="border-l-4 ${colorClass} p-5 rounded-lg shadow-inner">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="font-bold text-xl">Résultat de l'analyse</span>
+                <div class="border-l-4 ${colorClass} p-5 rounded-lg shadow-inner space-y-4">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center pb-2 border-b border-white border-opacity-20">
+                        <span class="font-bold text-xl">Analyse Experts</span>
                         <span class="px-3 py-1 rounded-full bg-white bg-opacity-20 text-xs font-bold uppercase tracking-wider">
                             ${ocrData.type === "etablissement" ? "🏥 Établissement" : "👨‍⚕️ Libéral"}
                         </span>
                     </div>
                     
-                    <div class="space-y-2 mb-5">
-                        ${detailsHtml}
-                        <div class="text-[10px] italic opacity-70 mt-4 border-t border-current pt-2">
-                             🔒 Identité du patient masquée (Conformité HDS)
+                    <!-- 1. Champs de structure -->
+                    <div class="space-y-1">
+                        <p class="text-[10px] uppercase font-bold tracking-widest opacity-60 mb-1">Identifiants Structure</p>
+                        ${scoreResult.details.map(d => `
+                            <div class="flex items-center text-sm">
+                                <span class="w-8">${d.status}</span>
+                                <span class="w-20 font-medium">${d.champ}:</span>
+                                <span class="text-opacity-90 font-semibold">${d.message}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- 2. Situation Patient -->
+                    <div class="bg-black bg-opacity-5 p-3 rounded-lg">
+                        <p class="text-[10px] uppercase font-bold tracking-widest opacity-60 mb-2">📋 Situation du Patient</p>
+                        <div class="grid grid-cols-1 gap-1 text-xs">
+                            <div class="flex items-center ${situation.hospitalisation ? 'font-bold' : 'opacity-40'}">
+                                <span class="w-6">${situation.hospitalisation ? "✅" : "❌"}</span>
+                                <span>Hospitalisation (Entrée/Sortie/Séance)</span>
+                            </div>
+                            <div class="flex items-center ${situation.aldExonerante ? 'font-bold' : 'opacity-40'}">
+                                <span class="w-6">${situation.aldExonerante ? "✅" : "❌"}</span>
+                                <span>ALD exonérante</span>
+                            </div>
+                            <div class="flex items-center ${situation.atMp ? 'font-bold' : 'opacity-40'}">
+                                <span class="w-6">${situation.atMp ? "✅" : "❌"}</span>
+                                <span>Accident Travail / MP</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="text-center mt-2 pt-4 border-t border-white border-opacity-20">
+
+                    <!-- 3. Mode de Transport -->
+                    <div class="bg-black bg-opacity-5 p-3 rounded-lg">
+                        <p class="text-[10px] uppercase font-bold tracking-widest opacity-60 mb-2">🚑 Mode de Transport</p>
+                        <div class="grid grid-cols-1 gap-1 text-xs">
+                            <div class="flex items-center ${transport.ambulance ? 'font-bold' : 'opacity-40'}">
+                                <span class="w-6">${transport.ambulance ? "✅" : "❌"}</span>
+                                <span>Ambulance (Allongé/Surveillance)</span>
+                            </div>
+                            <div class="flex items-center ${transport.vslTaxi ? 'font-bold' : 'opacity-40'}">
+                                <span class="w-6">${transport.vslTaxi ? "✅" : "❌"}</span>
+                                <span>VSL ou TAXI Conventionné</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Prise en Charge -->
+                    <div class="bg-white bg-opacity-30 p-3 rounded-lg border border-white border-opacity-20 text-sm">
+                         <p class="font-bold flex items-center gap-2">
+                             <span>💰 Prise en charge :</span>
+                             <span class="px-2 py-0.5 rounded bg-white bg-opacity-50 text-[10px]">${priseEnCharge}</span>
+                         </p>
+                         <p class="text-xs mt-1 opacity-80">${pecDetails}</p>
+                    </div>
+
+                    <!-- 5. Score Final -->
+                    <div class="text-center pt-4 border-t border-white border-opacity-20">
                         <div class="text-3xl font-black mb-1">${Math.round(percentage)}% conforme</div>
+                        <div class="text-[10px] italic opacity-70 mb-2">
+                             🔒 Données purgées après lecture (HDS)
+                        </div>
                         <div class="text-xs font-bold uppercase tracking-widest opacity-80">
-                            Niveau : ${color}
+                            Niveau CPAM : ${color}
                         </div>
                     </div>
                 </div>
