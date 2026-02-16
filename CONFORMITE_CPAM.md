@@ -1,4 +1,4 @@
-# 📋 Spécifications des Règles de Conformité CPAM - CapsoScan
+# CaspoScan - Spécifications de conformité CPAM
 
 Ce document détaille la logique métier implémentée dans le moteur de validation CapsoScan pour l'analyse des prescriptions médicales de transport.
 

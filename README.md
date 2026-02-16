@@ -1,4 +1,4 @@
-# CapsoScan - Système de Validation de Prescriptions Médicales
+# CaspoScan
 
 CapsoScan est une solution robuste pour la validation de prescriptions médicales (CERFA), assurant la conformité avec le référentiel CPAM (Arrêté du 23 décembre 2006).
 
