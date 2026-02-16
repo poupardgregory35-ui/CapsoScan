@@ -34,16 +34,11 @@ def calculate_compliance_score(
     has_rpps = validate_rpps_format(rpps)
     has_finess = validate_finess_format(finess)
     
-    # Implicit "Cachet" presence logic
-    has_cachet = has_rpps or has_finess
-    
+    # "Si le finess est présent (établissement), pas besoin de RPPS"
+    is_etablissement = is_etablissement or has_finess
+
     if is_etablissement:
-        # "quand c'est une structure pas besoin de finess"
-        # Logic from doc seems to apply no penalty for structure specific missing IDs?
-        # Re-reading: 
-        # "Nous ne pénalisons plus l'absence de FINESS pour les structures."
-        # Does it imply we check anything else? 
-        # The code block for isEtablissement was empty in the source.
+        # Structure mode: No penalty for missing RPPS
         pass
     else:
         # Individual Prescriber
@@ -51,9 +46,9 @@ def calculate_compliance_score(
             score -= 30
             alerts.append({"type": "vigilance", "msg": "RPPS manquant ou format invalide"})
         
-        if not has_cachet:
+        # Cachet absent penalty (ni RPPS ni FINESS)
+        if not (has_rpps or has_finess):
             score -= 10
-            # Note: "We don't alert explicitly for cachet missing if RPPS is also missing"
     
     score = max(0, score)
     

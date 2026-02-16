@@ -34,9 +34,9 @@ async def scan_pda(
     scan_id = f"PDA-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     timestamp = datetime.now()
     
-    # Use provided values or defaults
-    rpps_val = rpps if rpps else "10002030405"
-    finess_val = finess if finess else "350000123"
+    # Use provided values or empty strings
+    rpps_val = rpps if rpps else ""
+    finess_val = finess if finess else ""
     has_signature = True # Simulated correct signature
     
     score, alerts = calculate_compliance_score(
