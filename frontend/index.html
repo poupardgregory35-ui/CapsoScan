@@ -816,52 +816,57 @@
         // Automatic detection now handles this
 
         async function runAutoValidation() {
-            showLoader('Analyse Backend CPAM...');
+            showLoader('Analyse des règles de conformité CPAM...');
+
+            // Simulation d'un délai d'analyse
+            await new Promise(r => setTimeout(r, 800));
 
             try {
-                const formData = new FormData();
+                const structureType = ui.detectedType.dataset.type || 'liberal';
+                const hasSig = ui.hasSignature.checked;
+                const rppsVal = ui.rpps.value.trim();
+                const finessVal = ui.finess.value.trim();
+                const typo = ui.typologie.value;
 
-                // Si on a une image (blob), l'envoyer. Sinon créer un blob vide pour respecter l'API
-                if (currentImageSource) {
-                    // Convert canvas/image to blob
-                    const response = await fetch(currentImageSource);
-                    const blob = await response.blob();
-                    formData.append('file', blob, 'scan.jpg');
-                } else {
-                    // Fallback dummy file
-                    formData.append('file', new Blob([''], { type: 'text/plain' }), 'dummy.txt');
+                let score = 100;
+                let alerts = [];
+
+                // 1. Signature
+                if (!hasSig) {
+                    score -= 40;
+                    alerts.push({ type: 'vigilance', msg: 'Signature manquante' });
                 }
 
-                const structureType = ui.detectedType.dataset.type || 'liberal';
+                // 2. Règles selon structure
+                if (structureType === 'etablissement' || typo === 'URGENCE') {
+                    // FINESS Obligatoire pour établissement
+                    if (!REGEX_FINESS.test(finessVal)) {
+                        score -= 40;
+                        alerts.push({ type: 'vigilance', msg: 'FINESS manquant ou invalide (Obligatoire pour Établissement)' });
+                    }
+                } else {
+                    // RPPS Obligatoire pour Libéral
+                    if (!REGEX_RPPS.test(rppsVal)) {
+                        score -= 40;
+                        alerts.push({ type: 'vigilance', msg: 'RPPS manquant ou invalide (Obligatoire pour Libéral)' });
+                    }
+                    // FINESS Optionnel mais vérifié si rempli
+                    if (finessVal && !REGEX_FINESS.test(finessVal)) {
+                        score -= 10;
+                        alerts.push({ type: 'info', msg: 'Format FINESS incorrect' });
+                    }
+                }
 
-                formData.append('rpps', ui.rpps.value);
-                formData.append('finess', ui.finess.value);
-                formData.append('typologie', ui.typologie.value);
-                formData.append('structure_type', structureType);
-                formData.append('hasSignature', ui.hasSignature.checked);
+                score = Math.max(0, score);
 
-                // Call API
-                const response = await fetch(`${API_URL}/scan/pda`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) throw new Error('Erreur API Backend');
-
-                const data = await response.json();
-
-                // Map Backend response to UI format
                 renderResult({
-                    score: Math.round(data.score_confiance * 100),
-                    alerts: data.validations.filter(v => !v.status).map(v => ({
-                        type: v.rule === 'VIGILANCE' ? 'vigilance' : 'info',
-                        msg: v.message
-                    }))
+                    score: score,
+                    alerts: alerts
                 });
 
             } catch (err) {
                 console.error(err);
-                showToast('Erreur connexion Backend', 'warning');
+                showToast('Erreur lors de l\'analyse locale', 'warning');
             } finally {
                 hideLoader();
                 ui.resultCard.style.display = 'block';
