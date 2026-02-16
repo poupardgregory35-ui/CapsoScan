@@ -22,16 +22,15 @@ Le score initial est de **100/100**.
 ### A. Règle Commune
 *   **Signature manquante** : `-40 points` (Alerte Vigilance)
 
-### B. Cas : Prescripteur INDIVIDUEL (Libéral)
-*   **RPPS absent ou invalide** : `-30 points` (Alerte Vigilance)
-*   **Absence totale d'ID (ni RPPS, ni FINESS)** : `-10 points` (Pénalité cachet)
-*   *Note : Le RPPS est l'identifiant légal obligatoire ici.*
+### B. Cas : Structure LIBÉRAL
+*   **FINESS manquant** : `-40 points` (CRITIQUE)
+*   **Format FINESS invalide** : `-30 points` (VIGILANCE)
+*   **RPPS manquant** : `-30 points` (VIGILANCE)
 
-### C. Cas : ÉTABLISSEMENT / URGENCE (Hôpitaux, SAMU, Cliniques)
-*   **Mode Structure activé si** : Typologie "URGENCE" OU mot-clé SAMU/CHU OU FINESS présent.
-*   **FINESS absent** : `0 point` (Autorisé pour les salariés)
+### C. Cas : Structure ÉTABLISSEMENT / URGENCE
+*   **FINESS absent** : `0 point` (Tolérance totale - Non requis)
 *   **RPPS absent** : `0 point` (Autorisé pour les salariés)
-*   **Logique** : Dans les structures publiques/privées, les prescripteurs sont salariés, l'identification de la structure ou de l'urgence prime.
+*   **Note** : Le mode Structure est activé si le sélecteur est sur "Établissement" ou si la typologie est "URGENCE".
 
 ---
 

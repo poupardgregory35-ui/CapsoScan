@@ -468,6 +468,25 @@
             <div class="card-header">2. Données Extraites (Auto)</div>
             <div class="card-body">
 
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label class="form-label" style="margin-bottom: 0.8rem; display: block;">Type de structure</label>
+                    <div
+                        style="display: flex; gap: 1.5rem; background: #f3f4f6; padding: 0.75rem; border-radius: 0.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="structureType" value="liberal" checked
+                                style="width: 1.2rem; height: 1.2rem;">
+                            <span style="font-weight: 500;">Libéral</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="structureType" value="etablissement"
+                                style="width: 1.2rem; height: 1.2rem;">
+                            <span style="font-weight: 500;">Établissement</span>
+                        </label>
+                    </div>
+                    <p style="font-size: 0.7rem; color: #6b7280; margin-top: 0.25rem;">Le FINESS est obligatoire
+                        uniquement pour les libéraux.</p>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label" for="typologieSelect">Typologie Prescription</label>
                     <select id="typologieSelect" class="form-input">
@@ -795,8 +814,9 @@
         ui.hasSignature.addEventListener('change', () => {
             if (ui.finess.value || ui.rpps.value || ui.typologie.value === 'URGENCE') setTimeout(runAutoValidation, 500);
         });
-        ui.typologie.addEventListener('change', () => {
-            setTimeout(runAutoValidation, 500);
+        // Monitor structure type changes
+        document.querySelectorAll('input[name="structureType"]').forEach(radio => {
+            radio.addEventListener('change', () => runAutoValidation());
         });
 
         async function runAutoValidation() {
@@ -815,9 +835,12 @@
                     formData.append('file', new Blob([''], { type: 'text/plain' }), 'dummy.txt');
                 }
 
+                const structureType = document.querySelector('input[name="structureType"]:checked').value;
+
                 formData.append('rpps', ui.rpps.value);
                 formData.append('finess', ui.finess.value);
                 formData.append('typologie', ui.typologie.value);
+                formData.append('structure_type', structureType);
                 formData.append('hasSignature', ui.hasSignature.checked);
 
                 // Call API

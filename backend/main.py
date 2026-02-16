@@ -29,6 +29,7 @@ async def scan_pda(
     rpps: Optional[str] = Form(None),
     finess: Optional[str] = Form(None),
     typologie: Optional[str] = Form("UNITAIRE"),
+    structure_type: Optional[str] = Form("liberal"), # "liberal" ou "etablissement"
     hasSignature: Optional[str] = Form("true"),
     file: UploadFile = File(...)
 ):
@@ -43,7 +44,7 @@ async def scan_pda(
     has_sig_bool = str(hasSignature).lower() == "true"
     
     score, alerts = calculate_compliance_score(
-        prescripteur_type="INDIVIDUEL", # Sera détecté auto par le moteur
+        structure_type=structure_type,
         has_signature=has_sig_bool,
         rpps=rpps_val,
         finess=finess_val,
