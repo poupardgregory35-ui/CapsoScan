@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CaspoScan - Contrôle CPS</title>
+    <title>CaspoScan - Contrôle PMT</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏥</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,7 +15,7 @@
         <!-- En-tête -->
         <div class="text-center mb-8">
             <h1 class="text-4xl font-bold text-gray-800 mb-2">CaspoScan</h1>
-            <p class="text-gray-600">Contrôle de conformité des cartes CPS</p>
+            <p class="text-gray-600">Contrôle de conformité des prescriptions médicales de transport</p>
             <div class="bg-blue-50 border-l-4 border-blue-500 p-2 mt-4 text-sm">
                 <p class="text-blue-700">
                     🔒 Conforme HDS : Données lues en mémoire puis immédiatement purgées<br>
@@ -32,7 +32,7 @@
                 <div class="text-5xl mb-4">📄</div>
                 <span
                     class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
-                    Importer une carte CPS
+                    Importer une PMT
                 </span>
                 <p class="text-gray-500 text-sm mt-3">PNG, JPG, JPEG (max 5 Mo)</p>
             </label>
@@ -80,26 +80,26 @@
             // Simuler un délai d'analyse
             await new Promise(resolve => setTimeout(resolve, 1500));
 
-            // Déterminer aléatoirement le type de structure
-            const isEtablissement = Math.random() > 0.5;
+            // Pour la démo, on simule une détection basée sur le document (Établissement si SAMU/CHU/HOPITAL)
+            // On peut forcer un cas parfait pour la démo
+            const isEtablissement = true; // Forcé en Établissement pour le cas SAMU 35
 
-            // Générer des données réalistes
             if (isEtablissement) {
                 return {
                     type: "etablissement",
-                    finess: Math.random() > 0.2 ? "123456789" : "", // 80% de chance d'avoir un FINESS
-                    rpps: "", // Pas de RPPS pour établissement
-                    cachet: Math.random() > 0.1 ? "present" : "absent", // 90% présent
-                    nom: "DUPONT",
-                    prenom: "Jean",
-                    raw: `FINESS: 123456789\nCachet: présent\nHOPITAL SAINT JEAN`
+                    finess: "350000741",
+                    rpps: "",
+                    cachet: "present",
+                    nom: "HOUEE",
+                    prenom: "Yuna",
+                    raw: `FINESS: 350000741\nCachet: présent\nSAMU 35 - CHU RENNES`
                 };
             } else {
                 return {
                     type: "liberal",
-                    rpps: Math.random() > 0.2 ? "12345678901" : "", // 80% de chance d'avoir un RPPS
-                    finess: "", // Pas de FINESS pour libéral
-                    cachet: Math.random() > 0.1 ? "present" : "absent", // 90% présent
+                    rpps: "12345678901",
+                    finess: "",
+                    cachet: "present",
                     nom: "DUPONT",
                     prenom: "Jean",
                     raw: `RPPS: 12345678901\nCachet: présent\nDr DUPONT Jean`
