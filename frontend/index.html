@@ -24,18 +24,29 @@
             </div>
         </div>
 
-        <!-- Zone d'upload -->
-        <div
-            class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-            <input type="file" id="fileInput" accept="image/*" class="hidden">
-            <label for="fileInput" class="cursor-pointer">
-                <div class="text-5xl mb-4">📄</div>
-                <span
-                    class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
-                    Importer une PMT
-                </span>
-                <p class="text-gray-500 text-sm mt-3">PNG, JPG, JPEG (max 5 Mo)</p>
-            </label>
+        <!-- Zone de Capture (Optimisée Mobile/Terrain) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <!-- Option 1: Importer (Fichier/Galerie) -->
+            <div
+                class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                <input type="file" id="fileInput" accept="image/*" class="hidden">
+                <label for="fileInput" class="cursor-pointer block">
+                    <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">📁</div>
+                    <span class="block text-blue-600 font-bold mb-1">Importer</span>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Document existant</p>
+                </label>
+            </div>
+
+            <!-- Option 2: Prendre en photo (Appareil photo direct) -->
+            <div
+                class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
+                <label for="cameraInput" class="cursor-pointer block">
+                    <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">📸</div>
+                    <span class="block text-emerald-600 font-bold mb-1">Photographier</span>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Capture terrain</p>
+                </label>
+            </div>
         </div>
 
         <!-- Zone de résultat (cachée au départ) -->
@@ -53,9 +64,11 @@
     <script>
         // === Éléments DOM ===
         const fileInput = document.getElementById('fileInput');
+        const cameraInput = document.getElementById('cameraInput');
         const resultDiv = document.getElementById('result');
         const resetContainer = document.getElementById('resetContainer');
         const resetBtn = document.getElementById('resetBtn');
+        const mainCard = document.querySelector('.max-w-2xl');
 
         // === Règles de scoring CPAM ===
         const SCORING_RULES = {
@@ -312,16 +325,22 @@
         }
 
         // === Event Listeners ===
-        if (fileInput) {
-            fileInput.addEventListener('change', function (e) {
+        function setupCapture(input, isCamera = false) {
+            if (!input) return;
+            input.addEventListener('change', function (e) {
                 const file = e.target.files[0];
-                handleFile(file);
-                // Reset l'input pour permettre de re-sélectionner le même fichier
-                this.value = '';
+                if (file) {
+                    if (isCamera) {
+                        console.log("📸 Capture terrain détectée");
+                    }
+                    handleFile(file);
+                }
+                this.value = ''; // Reset
             });
-        } else {
-            console.error("fileInput non trouvé");
         }
+
+        setupCapture(fileInput);
+        setupCapture(cameraInput, true);
 
         if (resetBtn) {
             resetBtn.addEventListener('click', function () {
