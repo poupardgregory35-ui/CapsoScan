@@ -27,10 +27,11 @@ Le score initial est de **100/100**.
 *   **Absence totale d'ID (ni RPPS, ni FINESS)** : `-10 points` (Pénalité cachet)
 *   *Note : Le RPPS est l'identifiant légal obligatoire ici.*
 
-### C. Cas : Prescripteur ÉTABLISSEMENT (Structure)
-*   **FINESS absent** : `0 point` (Aucune pénalité)
-*   **RPPS absent** : `0 point` (Non requis pour une structure)
-*   *Logique : La validation d'une structure ne requiert pas de FINESS selon le référentiel CapsoScan.*
+### C. Cas : ÉTABLISSEMENT / URGENCE (Hôpitaux, SAMU, Cliniques)
+*   **Mode Structure activé si** : Typologie "URGENCE" OU mot-clé SAMU/CHU OU FINESS présent.
+*   **FINESS absent** : `0 point` (Autorisé pour les salariés)
+*   **RPPS absent** : `0 point` (Autorisé pour les salariés)
+*   **Logique** : Dans les structures publiques/privées, les prescripteurs sont salariés, l'identification de la structure ou de l'urgence prime.
 
 ---
 

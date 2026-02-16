@@ -28,22 +28,23 @@ async def health_check():
 async def scan_pda(
     rpps: Optional[str] = Form(None),
     finess: Optional[str] = Form(None),
+    typologie: Optional[str] = Form("UNITAIRE"),
     file: UploadFile = File(...)
 ):
-    # Simulation OCR (still simulated)
+    # Simulation OCR
     scan_id = f"PDA-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     timestamp = datetime.now()
     
-    # Use provided values or empty strings
     rpps_val = rpps if rpps else ""
     finess_val = finess if finess else ""
-    has_signature = True # Simulated correct signature
+    has_signature = True # Simulé
     
     score, alerts = calculate_compliance_score(
-        prescripteur_type="INDIVIDUEL", # Default for now
+        prescripteur_type="INDIVIDUEL", # Sera détecté auto par le moteur
         has_signature=has_signature,
         rpps=rpps_val,
-        finess=finess_val
+        finess=finess_val,
+        typologie=typologie
     )
     
     statut = "VALID" if score >= 80 else "INVALID"
