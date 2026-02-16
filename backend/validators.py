@@ -18,7 +18,10 @@ def calculate_compliance_score(
     typologie: str = "UNITAIRE"
 ) -> Tuple[int, List[Dict[str, str]]]:
     """
-    Moteur de règles CaspoScan - Version Spécification FINESS Conditionnel
+    Moteur de règles CaspoScan - Version Mise à jour FINESS/RPPS
+    Rule: 
+    - Etablissement: FINESS Obligatoire, RPPS Optionnel
+    - Liberal: RPPS Obligatoire, FINESS Optionnel
     """
     score = 100
     alerts = []
@@ -28,32 +31,28 @@ def calculate_compliance_score(
         score -= 40
         alerts.append({"type": "vigilance", "msg": "Signature manquante"})
         
-    # 2. Règle FINESS Conditionnelle (Spécification Technique)
+    # 2. Règle Typologie Urgence (SAMU/Centre 15)
+    # Souvent assimilé à établissement hospitalier
+    if typologie == "URGENCE" and structure_type != "etablissement":
+        structure_type = "etablissement"
+
+    # 3. Validation selon le type de structure
     if structure_type == "etablissement":
-        # Règle 1 : Établissement → FINESS non requis (0 pénalité)
-        pass 
-    else:
-        # Règle 2 : Libéral → Validation stricte
-        if not finess or finess.strip() == "":
+        # FINESS OBLIGATOIRE
+        if not finess or not validate_finess_format(finess):
             score -= 40
-            alerts.append({"type": "vigilance", "msg": "FINESS obligatoire pour les libéraux"})
-        elif not validate_finess_format(finess):
-            score -= 30
-            alerts.append({"type": "vigilance", "msg": "Format FINESS invalide (9 chiffres requis)"})
-
-    # 3. Règle RPPS (Libéral)
-    # On garde la logique que le RPPS est requis pour les libéraux
-    has_rpps = validate_rpps_format(rpps)
-    if structure_type == "liberal" and not has_rpps:
-        score -= 30
-        alerts.append({"type": "vigilance", "msg": "RPPS manquant ou format invalide"})
-
-    # 4. Détection Urgence / SAMU (CHU)
-    # Si Urgence, on s'assure que le score ne soit pas trop pénalisé si c'est une structure hospitalière
-    if typologie == "URGENCE":
-        # Dans le cas d'urgence, on est souvent en mode établissement de fait
-        # On pourrait imaginer un bonus ou une remise à zéro des pénalités ID
-        pass
+            alerts.append({"type": "vigilance", "msg": "FINESS manquant ou invalide (Obligatoire pour Etablissement)"})
+        # RPPS OPTIONNEL (Pas de pénalité si absent)
+    
+    else: # Mode LIBERAL
+        # RPPS OBLIGATOIRE
+        if not rpps or not validate_rpps_format(rpps):
+            score -= 40
+            alerts.append({"type": "vigilance", "msg": "RPPS manquant ou invalide (Obligatoire pour Libéral)"})
+        # FINESS OPTIONNEL (Mais vérifié si présent)
+        if finess and not validate_finess_format(finess):
+            score -= 10
+            alerts.append({"type": "info", "msg": "Format FINESS incorrect"})
 
     score = max(0, score)
     return score, alerts
