@@ -469,6 +469,15 @@
             <div class="card-body">
 
                 <div class="form-group">
+                    <label class="form-label" for="typologieSelect">Typologie Prescription</label>
+                    <select id="typologieSelect" class="form-input">
+                        <option value="UNITAIRE">Unitaire</option>
+                        <option value="ITERATIVE">Itérative</option>
+                        <option value="URGENCE">Urgence (SAMU/Centre 15)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label class="form-label" for="rppsInput">RPPS Prescripteur (11 chiffres)</label>
                     <input type="text" id="rppsInput" class="form-input" inputmode="numeric"
                         placeholder="ex: 10002030405">
@@ -535,6 +544,7 @@
 
             rpps: document.getElementById('rppsInput'),
             finess: document.getElementById('finessInput'),
+            typologie: document.getElementById('typologieSelect'),
             hasSignature: document.getElementById('hasSignature'),
 
             resultCard: document.getElementById('resultCard'),
@@ -722,6 +732,12 @@
             // 3. Autres champs
             if (/signature|signé/i.test(rawText)) ui.hasSignature.checked = true;
 
+            // 4. Typologie (Urgence)
+            if (/samu|smur|centre 15|urgente/i.test(rawText)) {
+                ui.typologie.value = 'URGENCE';
+                fieldsFound++;
+            }
+
             if (fieldsFound > 0) {
                 showToast(`✓ ${fieldsFound} champ(s) détectés automatiquement`);
                 ui.retryOcrBtn.style.display = 'none';
@@ -777,7 +793,10 @@
             if (ui.finess.value || ui.rpps.value) setTimeout(runAutoValidation, 500);
         });
         ui.hasSignature.addEventListener('change', () => {
-            if (ui.finess.value || ui.rpps.value) setTimeout(runAutoValidation, 500);
+            if (ui.finess.value || ui.rpps.value || ui.typologie.value === 'URGENCE') setTimeout(runAutoValidation, 500);
+        });
+        ui.typologie.addEventListener('change', () => {
+            setTimeout(runAutoValidation, 500);
         });
 
         async function runAutoValidation() {
@@ -798,6 +817,7 @@
 
                 formData.append('rpps', ui.rpps.value);
                 formData.append('finess', ui.finess.value);
+                formData.append('typologie', ui.typologie.value);
                 formData.append('hasSignature', ui.hasSignature.checked);
 
                 // Call API
