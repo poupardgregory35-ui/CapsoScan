@@ -3,978 +3,272 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Validateur PMT V6.5 - OCR Robuste</title>
-
-    <!-- PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    </script>
-
-    <style>
-        :root {
-            --c-emerald-50: #ecfdf5;
-            --c-emerald-600: #059669;
-            --c-blue-50: #eff6ff;
-            --c-blue-600: #2563eb;
-            --c-orange-50: #fff7ed;
-            --c-orange-600: #ea580c;
-            --c-rose-50: #fff1f2;
-            --c-rose-600: #e11d48;
-            --c-gray-50: #f9fafb;
-            --c-gray-200: #e5e7eb;
-            --c-gray-600: #4b5563;
-            --c-gray-700: #374151;
-            --c-gray-900: #111827;
-            --c-white: #ffffff;
-            --radius: 0.75rem;
-            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: var(--font-main);
-            background: var(--c-gray-50);
-            color: var(--c-gray-700);
-            padding-bottom: 3rem;
-            line-height: 1.5;
-        }
-
-        *:focus-visible {
-            outline: 3px solid var(--c-blue-600);
-            outline-offset: 2px;
-        }
-
-        header {
-            background: var(--c-white);
-            padding: 1rem;
-            border-bottom: 1px solid var(--c-gray-200);
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        h1 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--c-gray-700);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .badge {
-            background: var(--c-emerald-100);
-            color: var(--c-emerald-700);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-
-        main {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .card {
-            background: var(--c-white);
-            border-radius: var(--radius);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--c-gray-200);
-        }
-
-        .card-header {
-            padding: 1rem;
-            background: var(--c-gray-50);
-            border-bottom: 1px solid var(--c-gray-200);
-            font-weight: 600;
-            font-size: 0.9rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-body {
-            padding: 1rem;
-        }
-
-        /* Upload Area */
-        .upload-area {
-            border: 2px dashed var(--c-gray-200);
-            border-radius: var(--radius);
-            padding: 2.5rem 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: #fafafa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .upload-area:hover,
-        .upload-area.dragover,
-        .upload-area:focus {
-            border-color: var(--c-blue-600);
-            background: var(--c-blue-50);
-            outline: none;
-        }
-
-        /* Preview */
-        #previewContainer {
-            display: none;
-            position: relative;
-            margin-top: 1rem;
-            background: #333;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            min-height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #previewImage,
-        #previewCanvas {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .remove-img-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            color: var(--c-rose-600);
-            border: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            z-index: 10;
-        }
-
-        .remove-img-btn:hover {
-            background: white;
-            transform: scale(1.1);
-        }
-
-        /* Form */
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--c-gray-700);
-            margin-bottom: 0.4rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.6rem;
-            border: 1px solid var(--c-gray-200);
-            border-radius: 0.4rem;
-            font-size: 1rem;
-            background: white;
-            transition: all 0.2s;
-        }
-
-        .form-input.invalid {
-            border-color: var(--c-rose-600);
-            background-color: var(--c-rose-50);
-        }
-
-        .form-input.success-flash {
-            animation: flashSuccess 1.5s ease-out;
-        }
-
-        .error-msg {
-            color: var(--c-rose-600);
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-            display: none;
-        }
-
-        @keyframes flashSuccess {
-            0% {
-                background-color: var(--c-emerald-200);
-            }
-
-            100% {
-                background-color: white;
-            }
-        }
-
-        /* Toggle */
-        .toggle-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.8rem;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: var(--c-blue-600);
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(16px);
-        }
-
-        /* Results */
-        .score-box {
-            text-align: center;
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            margin-bottom: 1rem;
-            border: 2px solid transparent;
-        }
-
-        .score-val {
-            font-size: 2.5rem;
-            font-weight: 800;
-            line-height: 1;
-        }
-
-        .alert-item {
-            background: white;
-            border-left: 4px solid #ccc;
-            padding: 0.8rem;
-            margin-bottom: 0.5rem;
-            border-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        }
-
-        .alert-vigilance {
-            border-color: var(--c-orange-600);
-            background: #fff7ed;
-        }
-
-        .alert-info {
-            border-color: var(--c-blue-600);
-            background: #eff6ff;
-        }
-
-        .color-high {
-            background: var(--c-emerald-50);
-            color: var(--c-emerald-600);
-            border-color: var(--c-emerald-100);
-        }
-
-        .color-med {
-            background: var(--c-blue-50);
-            color: var(--c-blue-600);
-            border-color: var(--c-blue-100);
-        }
-
-        .color-low {
-            background: var(--c-orange-50);
-            color: var(--c-orange-600);
-            border-color: var(--c-orange-100);
-        }
-
-        .color-crit {
-            background: var(--c-rose-50);
-            color: var(--c-rose-600);
-            border-color: var(--c-rose-100);
-        }
-
-        /* Loader & Buttons */
-        .loader-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            z-index: 999;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--c-gray-200);
-            border-top: 4px solid var(--c-blue-600);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--c-blue-600);
-            color: var(--c-blue-600);
-            width: auto;
-            padding: 4px 12px;
-            font-size: 0.75rem;
-            border-radius: 4px;
-            cursor: pointer;
-            display: none;
-        }
-
-        .btn-secondary:hover {
-            background: var(--c-blue-50);
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--c-emerald-600);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            z-index: 2000;
-            animation: slideIn 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaspoScan - Contrôle CPS</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏥</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-
-    <header>
-        <h1 class="text-2xl font-bold text-gray-800">CaspoScan</h1>
-    </header>
-
-    <main>
-        <!-- Section 1: Capture -->
-        <section class="card">
-            <div class="card-header">
-                <span>1. Document</span>
-                <span style="font-size:0.75rem; color:var(--c-gray-600); font-weight:400;">JPEG, PNG ou PDF</span>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full bg-white rounded-xl shadow-lg p-6">
+        <!-- En-tête -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">CaspoScan</h1>
+            <p class="text-gray-600">Contrôle de conformité des cartes CPS</p>
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-2 mt-4 text-sm">
+                <p class="text-blue-700">
+                    🔒 Conforme HDS : Données lues en mémoire puis immédiatement purgées<br>
+                    ✅ Aucun stockage - Aucun affichage des documents
+                </p>
             </div>
-            <div class="card-body">
-                <!-- HDS Notice -->
-                <div
-                    style="background: var(--c-blue-50); border-left: 4px solid var(--c-blue-600); padding: 0.75rem; border-radius: 0.4rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--c-blue-600); display: flex; align-items: start; gap: 0.75rem;">
-                    <div style="font-size: 1.2rem; margin-top: -2px;">🔒</div>
-                    <div>
-                        <strong style="display: block; margin-bottom: 2px;">Conformité HDS & RGPD</strong>
-                        Analyse instantanée en RAM. Les documents ne sont ni affichés, ni stockés, ni transmis. Purge
-                        immédiate après lecture.
-                    </div>
-                </div>
+        </div>
 
-                <input type="file" id="fileInput" accept="image/*,application/pdf" aria-label="Sélectionner un fichier">
+        <!-- Zone d'upload -->
+        <div
+            class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
+            <input type="file" id="fileInput" accept="image/*" class="hidden">
+            <label for="fileInput" class="cursor-pointer">
+                <div class="text-5xl mb-4">📄</div>
+                <span
+                    class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+                    Importer une carte CPS
+                </span>
+                <p class="text-gray-500 text-sm mt-3">PNG, JPG, JPEG (max 5 Mo)</p>
+            </label>
+        </div>
 
-                <div class="upload-area" id="dropZone" role="button" tabindex="0">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="17 8 12 3 7 8"></polyline>
-                        <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                    <div style="font-weight:600; margin:0.5rem 0; font-size:1.1rem;">Photographiez le CERFA</div>
-                    <div
-                        style="font-size:0.75rem; color:var(--c-gray-600); line-height:1.8; max-width:280px; margin:0.5rem auto;">
-                        📸 L'analyse est automatique
-                    </div>
-                </div>
+        <!-- Zone de résultat (cachée au départ) -->
+        <div id="result" class="mt-6 hidden"></div>
 
-                <div id="previewContainer" style="display:none; flex-direction:column; align-items:center; gap:1rem;">
-                    <div id="previewWrapper"
-                        style="width:100%; min-height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:0.5rem; padding:1.5rem; text-align:center;">
-                        <div style="font-size:2.5rem; margin-bottom:0.5rem;">📄</div>
-                        <div style="color:var(--c-emerald-600); font-weight:700;">DOCUMENT EN MÉMOIRE SÉCURISÉE</div>
-                        <div style="font-size:0.75rem; color:var(--c-gray-600); margin-top:5px;">L'image a été purgée de
-                            l'affichage pour votre confidentialité (HDS)</div>
-                    </div>
-                    <div style="background:rgba(0,0,0,0.8); color:white; padding:0.5rem; text-align:center; font-size:0.75rem; display:flex; justify-content:space-between; width:100%; border-radius:0.4rem; padding-left:1rem; padding-right:1rem;"
-                        id="fileMeta">
-                        <span id="fileName">doc.pdf</span>
-                        <button id="retryOcrBtn" class="btn-secondary" style="display:inline-block;">🔄 Relancer
-                            l'analyse</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 2: Données Extractees -->
-        <section class="card">
-            <div class="card-header">2. Données Extraites (Auto)</div>
-            <div class="card-body">
-
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <div
-                        style="background: #f3f4f6; padding: 0.75rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
-                        <span style="font-size: 0.85rem; color: #4b5563;">Type détecté :</span>
-                        <span id="detectedType" data-type="liberal"
-                            style="font-weight: 700; background: #fff; padding: 0.3rem 0.8rem; border-radius: 2rem; border: 1px solid #e5e7eb; font-size: 0.8rem; color: #111827;">
-                            LIBÉRAL
-                        </span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="typologieSelect">Typologie Prescription</label>
-                    <select id="typologieSelect" class="form-input">
-                        <option value="UNITAIRE">Unitaire</option>
-                        <option value="ITERATIVE">Itérative</option>
-                        <option value="URGENCE">Urgence (SAMU/Centre 15)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="rppsInput">RPPS Prescripteur (11 chiffres)</label>
-                    <input type="text" id="rppsInput" class="form-input" inputmode="numeric"
-                        placeholder="ex: 10002030405">
-                    <div class="error-msg" id="rppsError">Format invalide (11 chiffres requis)</div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="finessInput">FINESS Établissement (9 chiffres)</label>
-                    <input type="text" id="finessInput" class="form-input" inputmode="numeric"
-                        placeholder="ex: 010000015">
-                    <div class="error-msg" id="finessError">Format invalide (9 chiffres requis)</div>
-                </div>
-
-                <div class="toggle-row">
-                    <span class="form-label" style="margin:0">Signature Présente</span>
-                    <label class="switch">
-                        <input type="checkbox" id="hasSignature" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 3: Résultats -->
-        <section class="card" id="resultCard" style="display:none;" aria-live="polite">
-            <div class="card-header">3. Analyse Expert CPAM</div>
-            <div class="card-body">
-                <div id="scoreBox" class="score-box color-high">
-                    <div class="score-val" id="scoreVal">0</div>
-                    <div class="form-label" style="margin-top:0.5rem">Score de Conformité</div>
-                </div>
-                <div id="alertsList"></div>
-            </div>
-        </section>
-    </main>
-
-    <div class="loader-overlay" id="loader" aria-hidden="true">
-        <div class="spinner"></div>
-        <div id="loaderText" style="font-weight:600; color:var(--c-gray-700);">Initialisation...</div>
+        <!-- Bouton de réinitialisation (cachée au départ) -->
+        <div id="resetContainer" class="mt-4 text-center hidden">
+            <button id="resetBtn"
+                class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                ↺ Nouvelle analyse
+            </button>
+        </div>
     </div>
 
     <script>
-        // --- CONFIG & STATE ---
-        const REGEX_RPPS = /^\d{11}$/;
-        const REGEX_FINESS = /^\d{9}$/;
+        // === Éléments DOM ===
+        const fileInput = document.getElementById('fileInput');
+        const resultDiv = document.getElementById('result');
+        const resetContainer = document.getElementById('resetContainer');
+        const resetBtn = document.getElementById('resetBtn');
 
-        // Configuration API (Modifier pour production)
-        const API_URL = "http://localhost:8000";
-
-        let ocrWorker = null;
-        let tesseractLoaded = false;
-        let currentImageSource = null;
-
-        const ui = {
-            fileInput: document.getElementById('fileInput'),
-            dropZone: document.getElementById('dropZone'),
-            previewContainer: document.getElementById('previewContainer'),
-            previewWrapper: document.getElementById('previewWrapper'),
-            fileName: document.getElementById('fileName'),
-            retryOcrBtn: document.getElementById('retryOcrBtn'),
-            removeImgBtn: document.getElementById('removeImgBtn'),
-            loader: document.getElementById('loader'),
-            loaderText: document.getElementById('loaderText'),
-
-            rpps: document.getElementById('rppsInput'),
-            finess: document.getElementById('finessInput'),
-            typologie: document.getElementById('typologieSelect'),
-            hasSignature: document.getElementById('hasSignature'),
-
-            resultCard: document.getElementById('resultCard'),
-            detectedType: document.getElementById('detectedType'),
-            scoreBox: document.getElementById('scoreBox'),
-            scoreVal: document.getElementById('scoreVal'),
-            alertsList: document.getElementById('alertsList')
+        // === Règles de scoring CPAM ===
+        const SCORING_RULES = {
+            RPPS: { penalite: -40, message: "RPPS invalide ou manquant" },
+            FINESS: { penalite: -40, message: "FINESS invalide ou manquant" },
+            CACHET: { penalite: -40, message: "Cachet absent" },
+            NOM: { penalite: -10, message: "Nom manquant" },
+            PRENOM: { penalite: -10, message: "Prénom manquant" }
         };
 
-        // --- LAZY LOADING TESSERACT ---
-        async function loadTesseract() {
-            if (tesseractLoaded) return;
-            return new Promise((resolve) => {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js';
-                script.onload = () => {
-                    tesseractLoaded = true;
-                    resolve();
+        const COLOR_THRESHOLDS = {
+            VERT: { max: 0, class: "bg-green-100 border-green-500 text-green-800" },
+            BLEU: { max: 40, class: "bg-blue-100 border-blue-500 text-blue-800" },
+            ORANGE: { max: 70, class: "bg-orange-100 border-orange-500 text-orange-800" },
+            ROUGE: { max: Infinity, class: "bg-red-100 border-red-500 text-red-800" }
+        };
+
+        // === Fonction de simulation OCR ===
+        async function simulateOCR() {
+            console.log("🔍 Analyse OCR simulée...");
+
+            // Simuler un délai d'analyse
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Déterminer aléatoirement le type de structure
+            const isEtablissement = Math.random() > 0.5;
+
+            // Générer des données réalistes
+            if (isEtablissement) {
+                return {
+                    type: "etablissement",
+                    finess: Math.random() > 0.2 ? "123456789" : "", // 80% de chance d'avoir un FINESS
+                    rpps: "", // Pas de RPPS pour établissement
+                    cachet: Math.random() > 0.1 ? "present" : "absent", // 90% présent
+                    nom: "DUPONT",
+                    prenom: "Jean",
+                    raw: `FINESS: 123456789\nCachet: présent\nHOPITAL SAINT JEAN`
                 };
-                document.head.appendChild(script);
+            } else {
+                return {
+                    type: "liberal",
+                    rpps: Math.random() > 0.2 ? "12345678901" : "", // 80% de chance d'avoir un RPPS
+                    finess: "", // Pas de FINESS pour libéral
+                    cachet: Math.random() > 0.1 ? "present" : "absent", // 90% présent
+                    nom: "DUPONT",
+                    prenom: "Jean",
+                    raw: `RPPS: 12345678901\nCachet: présent\nDr DUPONT Jean`
+                };
+            }
+        }
+
+        // === Fonction de calcul du score ===
+        function calculateScore(ocrData) {
+            let totalScore = 0;
+            const details = [];
+
+            // Valider selon le type de structure
+            if (ocrData.type === "etablissement") {
+                // Établissement : FINESS obligatoire
+                if (!ocrData.finess) {
+                    totalScore += SCORING_RULES.FINESS.penalite;
+                    details.push({ champ: "FINESS", status: "❌", message: SCORING_RULES.FINESS.message });
+                } else {
+                    details.push({ champ: "FINESS", status: "✅", message: "FINESS valide" });
+                }
+                details.push({ champ: "RPPS", status: "⏸️", message: "Non requis (établissement)" });
+            } else {
+                // Libéral : RPPS obligatoire
+                if (!ocrData.rpps) {
+                    totalScore += SCORING_RULES.RPPS.penalite;
+                    details.push({ champ: "RPPS", status: "❌", message: SCORING_RULES.RPPS.message });
+                } else {
+                    details.push({ champ: "RPPS", status: "✅", message: "RPPS valide" });
+                }
+                details.push({ champ: "FINESS", status: "⏸️", message: "Optionnel (libéral)" });
+            }
+
+            // Cachet toujours obligatoire
+            if (ocrData.cachet !== "present") {
+                totalScore += SCORING_RULES.CACHET.penalite;
+                details.push({ champ: "Cachet", status: "❌", message: SCORING_RULES.CACHET.message });
+            } else {
+                details.push({ champ: "Cachet", status: "✅", message: "Cachet présent" });
+            }
+
+            // Nom/Prénom toujours obligatoires
+            if (!ocrData.nom) {
+                totalScore += SCORING_RULES.NOM.penalite;
+                details.push({ champ: "Nom", status: "❌", message: SCORING_RULES.NOM.message });
+            } else {
+                details.push({ champ: "Nom", status: "✅", message: `Nom: ${ocrData.nom}` });
+            }
+
+            if (!ocrData.prenom) {
+                totalScore += SCORING_RULES.PRENOM.penalite;
+                details.push({ champ: "Prénom", status: "❌", message: SCORING_RULES.PRENOM.message });
+            } else {
+                details.push({ champ: "Prénom", status: "✅", message: `Prénom: ${ocrData.prenom}` });
+            }
+
+            return { totalScore, details };
+        }
+
+        // === Fonction pour obtenir la couleur selon le score ===
+        function getScoreColor(score) {
+            if (score <= COLOR_THRESHOLDS.VERT.max) return "VERT";
+            if (score <= COLOR_THRESHOLDS.BLEU.max) return "BLEU";
+            if (score <= COLOR_THRESHOLDS.ORANGE.max) return "ORANGE";
+            return "ROUGE";
+        }
+
+        // === Fonction d'affichage des résultats ===
+        function displayResults(ocrData, scoreResult) {
+            const color = getScoreColor(scoreResult.totalScore);
+            const colorClass = COLOR_THRESHOLDS[color].class;
+
+            // Construire le HTML des résultats
+            let detailsHtml = scoreResult.details.map(d =>
+                `<div class="flex items-center text-sm">
+                    <span class="w-16">${d.status}</span>
+                    <span class="w-24 font-medium">${d.champ}:</span>
+                    <span class="text-gray-600">${d.message}</span>
+                </div>`
+            ).join('');
+
+            resultDiv.innerHTML = `
+                <div class="border-l-4 ${colorClass} p-4 rounded">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-bold text-lg">Résultat de l'analyse</span>
+                        <span class="px-3 py-1 rounded-full bg-white text-sm font-semibold">
+                            ${ocrData.type === "etablissement" ? "🏥 Établissement" : "👨⚕️ Libéral"}
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-1 mb-4">
+                        ${detailsHtml}
+                    </div>
+                    
+                    <div class="text-center mt-4 pt-3 border-t border-gray-200">
+                        <span class="text-2xl font-bold">Score: ${scoreResult.totalScore}</span>
+                        <span class="ml-2 px-3 py-1 rounded-full bg-white text-sm font-semibold">
+                            ${color}
+                        </span>
+                    </div>
+                </div>
+            `;
+
+            resultDiv.classList.remove('hidden');
+            resetContainer.classList.remove('hidden');
+        }
+
+        // === Fonction principale de traitement ===
+        async function handleFile(file) {
+            if (!file) return;
+
+            // Afficher le chargement
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="inline-block animate-spin text-4xl mb-4">⚙️</div>
+                    <p class="text-gray-600">Analyse en cours...</p>
+                    <p class="text-sm text-gray-400">Lecture HDS - Données non stockées</p>
+                </div>
+            `;
+            resetContainer.classList.add('hidden');
+
+            try {
+                // Simuler l'OCR (pas de Tesseract !)
+                const ocrData = await simulateOCR();
+
+                // Calculer le score selon les règles CPAM
+                const scoreResult = calculateScore(ocrData);
+
+                // Afficher les résultats
+                displayResults(ocrData, scoreResult);
+
+                // Purge mémoire simulée
+                console.log("🧹 Purge mémoire HDS effectuée");
+
+            } catch (error) {
+                console.error("Erreur technique:", error);
+                resultDiv.innerHTML = `
+                    <div class="bg-red-100 border-l-4 border-red-500 p-4 rounded">
+                        <p class="font-bold text-red-800">❌ Erreur technique</p>
+                        <p class="text-red-600">Veuillez réessayer</p>
+                    </div>
+                `;
+                resetContainer.classList.remove('hidden');
+            }
+        }
+
+        // === Event Listeners ===
+        if (fileInput) {
+            fileInput.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                handleFile(file);
+                // Reset l'input pour permettre de re-sélectionner le même fichier
+                this.value = '';
+            });
+        } else {
+            console.error("fileInput non trouvé");
+        }
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function () {
+                resultDiv.classList.add('hidden');
+                resetContainer.classList.add('hidden');
+                resultDiv.innerHTML = '';
             });
         }
 
-        async function initOCR() {
-            if (!ocrWorker) {
-                ocrWorker = await Tesseract.createWorker('fra', 1, {
-                    logger: m => {
-                        if (m.status === 'recognizing text') {
-                            const pct = Math.round(m.progress * 100);
-                            ui.loaderText.textContent = `Analyse OCR : ${pct}%`;
-                        }
-                    }
-                });
-            }
-            return ocrWorker;
-        }
-
-        // --- FILE HANDLING ---
-
-        ui.dropZone.addEventListener('click', () => ui.fileInput.click());
-        ui.dropZone.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ui.fileInput.click(); }
-        });
-        ui.dropZone.addEventListener('dragover', (e) => { e.preventDefault(); ui.dropZone.classList.add('dragover'); });
-        ui.dropZone.addEventListener('dragleave', () => ui.dropZone.classList.remove('dragover'));
-        ui.dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            ui.dropZone.classList.remove('dragover');
-            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-        });
-        ui.fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) handleFile(e.target.files[0]);
-        });
-        ui.removeImgBtn.addEventListener('click', clearPreview);
-        ui.retryOcrBtn.addEventListener('click', () => {
-            if (currentImageSource) runOCR(currentImageSource);
-        });
-
-        async function handleFile(file) {
-            clearPreview();
-            showLoader('Chargement du fichier...');
-
-            try {
-                await loadTesseract();
-
-                if (file.type.startsWith('image/')) {
-                    await processImage(file);
-                } else if (file.type === 'application/pdf') {
-                    await processPDF(file);
-                } else {
-                    throw new Error("Format non supporté.");
-                }
-
-                ui.dropZone.style.display = 'none';
-                ui.previewContainer.style.display = 'flex';
-                ui.fileName.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} Ko)`;
-
-                await runOCR(currentImageSource);
-
-            } catch (err) {
-                console.error(err);
-                alert(err.message);
-                hideLoader();
-            }
-        }
-
-        async function processImage(file) {
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                // Image stockée uniquement dans une variable locale, non attachée au DOM
-                currentImageSource = e.target.result;
-                // On déclenche l'OCR
-                await runOCR(currentImageSource);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        async function processPDF(file) {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-            const page = await pdf.getPage(1);
-            const scale = 2.0;
-            const viewport = page.getViewport({ scale });
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            await page.render({ canvasContext: context, viewport: viewport }).promise;
-            const enhancedCanvas = enhanceImageForOCR(canvas);
-            currentImageSource = enhancedCanvas.toDataURL('image/jpeg', 0.9);
-
-            // On déclenche l'OCR
-            await runOCR(currentImageSource);
-        }
-
-        function enhanceImageForOCR(canvas) {
-            const newCanvas = document.createElement('canvas');
-            newCanvas.width = canvas.width;
-            newCanvas.height = canvas.height;
-            const ctx = newCanvas.getContext('2d');
-            ctx.drawImage(canvas, 0, 0);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
-            for (let i = 0; i < data.length; i += 4) {
-                const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                const val = avg < 120 ? 0 : 255;
-                data[i] = data[i + 1] = data[i + 2] = val;
-            }
-            ctx.putImageData(imageData, 0, 0);
-            return newCanvas;
-        }
-
-        async function runOCR(imageSource) {
-            try {
-                ui.loaderText.textContent = "Analyse OCR sécurisée en mémoire (RAM)...";
-                ui.loader.style.display = 'flex';
-                const worker = await initOCR();
-                const { data: { text } } = await worker.recognize(imageSource);
-
-                // PURGE IMMÉDIATE HDS : Suppression de la source image dès que le texte est extrait
-                currentImageSource = null;
-                imageSource = null;
-
-                smartExtract(text);
-            } catch (err) {
-                console.error('OCR Error:', err);
-                showToast('⚠️ Échec OCR, vérifiez la qualité de l\'image', 'warning');
-                hideLoader();
-            }
-        }
-
-        function smartExtract(rawText) {
-            const cleaned = rawText.replace(/[\s\.\-]/g, '');
-            let fieldsFound = 0;
-
-            // 1. Extraction RPPS
-            const rppsMatches = cleaned.match(/\d{11}/g);
-            if (rppsMatches) {
-                const validRpps = rppsMatches.filter(num => {
-                    const unique = new Set(num.split('')).size;
-                    return unique >= 3;
-                });
-                if (validRpps.length > 0) {
-                    ui.rpps.value = validRpps[0];
-                    validateField(ui.rpps.value, REGEX_RPPS, 'rppsError');
-                    flashField(ui.rpps);
-                    fieldsFound++;
-                }
-            }
-
-            // 2. Extraction FINESS (Permissif pour collé au texte)
-            const finessMatches = cleaned.match(/\d{9}/g);
-            if (finessMatches) {
-                const validFiness = finessMatches.filter(num => {
-                    // Ne doit pas être inclus dans un RPPS
-                    const notInRpps = !rppsMatches || !rppsMatches.some(rpps => rpps.includes(num));
-                    return notInRpps;
-                });
-
-                if (validFiness.length > 0) {
-                    ui.finess.value = validFiness[0];
-                    validateField(ui.finess.value, REGEX_FINESS, 'finessError');
-                    flashField(ui.finess);
-                    fieldsFound++;
-                }
-            }
-
-            // 3. Autres champs
-            if (/signature|signé/i.test(rawText)) ui.hasSignature.checked = true;
-
-            // 4. Typologie (Urgence) & Structure Detection
-            if (/samu|smur|centre 15|urgente|hopital|ch |chu |clinique|ehpad/i.test(rawText)) {
-                ui.typologie.value = 'URGENCE';
-                ui.detectedType.textContent = 'ÉTABLISSEMENT';
-                ui.detectedType.dataset.type = 'etablissement';
-                fieldsFound++;
-            } else {
-                ui.detectedType.textContent = 'LIBÉRAL';
-                ui.detectedType.dataset.type = 'liberal';
-            }
-
-            if (fieldsFound > 0) {
-                showToast(`✓ ${fieldsFound} champ(s) détectés automatiquement`);
-                ui.retryOcrBtn.style.display = 'none';
-            } else {
-                showToast('⚠️ Peu de données détectées, vérifiez manuellement.', 'warning');
-                ui.retryOcrBtn.style.display = 'inline-block';
-            }
-
-            setTimeout(() => runAutoValidation(), 500);
-        }
-
-        function flashField(element) {
-            element.classList.add('success-flash');
-            setTimeout(() => element.classList.remove('success-flash'), 1500);
-        }
-
-        function clearPreview() {
-            ui.fileInput.value = '';
-            ui.previewWrapper.innerHTML = '';
-            ui.dropZone.style.display = 'block';
-            ui.previewContainer.style.display = 'none';
-            ui.resultCard.style.display = 'none';
-            currentImageSource = null;
-            ui.rpps.value = ''; ui.finess.value = '';
-            ui.rpps.classList.remove('invalid'); ui.finess.classList.remove('invalid');
-            document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
-        }
-
-        function validateField(value, regex, errorId) {
-            const errorEl = document.getElementById(errorId);
-            const inputEl = errorEl.previousElementSibling;
-            if (!value.trim()) {
-                inputEl.classList.remove('invalid');
-                errorEl.style.display = 'none';
-                return true;
-            }
-            if (!regex.test(value)) {
-                inputEl.classList.add('invalid');
-                errorEl.style.display = 'block';
-                return false;
-            }
-            inputEl.classList.remove('invalid');
-            errorEl.style.display = 'none';
-            return true;
-        }
-
-        ui.rpps.addEventListener('input', () => {
-            validateField(ui.rpps.value, REGEX_RPPS, 'rppsError');
-            if (ui.finess.value || ui.rpps.value) setTimeout(runAutoValidation, 500);
-        });
-        ui.finess.addEventListener('input', () => {
-            validateField(ui.finess.value, REGEX_FINESS, 'finessError');
-            if (ui.finess.value || ui.rpps.value) setTimeout(runAutoValidation, 500);
-        });
-        ui.hasSignature.addEventListener('change', () => {
-            if (ui.finess.value || ui.rpps.value || ui.typologie.value === 'URGENCE') setTimeout(runAutoValidation, 500);
-        });
-        // Monitor structure type changes
-        // Automatic detection now handles this
-
-        async function runAutoValidation() {
-            showLoader('Analyse des règles de conformité CPAM...');
-
-            // Simulation d'un délai d'analyse
-            await new Promise(r => setTimeout(r, 800));
-
-            try {
-                const structureType = ui.detectedType.dataset.type || 'liberal';
-                const hasSig = ui.hasSignature.checked;
-                const rppsVal = ui.rpps.value.trim();
-                const finessVal = ui.finess.value.trim();
-                const typo = ui.typologie.value;
-
-                let score = 100;
-                let alerts = [];
-
-                // 1. Signature
-                if (!hasSig) {
-                    score -= 40;
-                    alerts.push({ type: 'vigilance', msg: 'Signature manquante' });
-                }
-
-                // 2. Règles selon structure
-                if (structureType === 'etablissement' || typo === 'URGENCE') {
-                    // FINESS Obligatoire pour établissement
-                    if (!REGEX_FINESS.test(finessVal)) {
-                        score -= 40;
-                        alerts.push({ type: 'vigilance', msg: 'FINESS manquant ou invalide (Obligatoire pour Établissement)' });
-                    }
-                } else {
-                    // RPPS Obligatoire pour Libéral
-                    if (!REGEX_RPPS.test(rppsVal)) {
-                        score -= 40;
-                        alerts.push({ type: 'vigilance', msg: 'RPPS manquant ou invalide (Obligatoire pour Libéral)' });
-                    }
-                    // FINESS Optionnel mais vérifié si rempli
-                    if (finessVal && !REGEX_FINESS.test(finessVal)) {
-                        score -= 10;
-                        alerts.push({ type: 'info', msg: 'Format FINESS incorrect' });
-                    }
-                }
-
-                score = Math.max(0, score);
-
-                renderResult({
-                    score: score,
-                    alerts: alerts
-                });
-
-            } catch (err) {
-                console.error(err);
-                showToast('Erreur lors de l\'analyse locale', 'warning');
-            } finally {
-                hideLoader();
-                ui.resultCard.style.display = 'block';
-                ui.resultCard.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        // Deprecated local rules
-        const processRules = (raw) => { return { score: 0, alerts: [] }; };
-
-        function renderResult(result) {
-            ui.scoreVal.textContent = result.score;
-            ui.scoreBox.className = 'score-box';
-            if (result.score >= 90) ui.scoreBox.classList.add('color-high');
-            else if (result.score >= 70) ui.scoreBox.classList.add('color-med');
-            else if (result.score >= 50) ui.scoreBox.classList.add('color-low');
-            else ui.scoreBox.classList.add('color-crit');
-
-            ui.alertsList.innerHTML = '';
-            if (result.alerts.length === 0) {
-                ui.alertsList.innerHTML = `<div class="alert-item" style="border-color:var(--c-emerald-600); background:var(--c-emerald-50);"><strong style="color:var(--c-emerald-700)">Document conforme.</strong></div>`;
-            } else {
-                result.alerts.forEach(alert => {
-                    const div = document.createElement('div');
-                    div.className = `alert-item ${alert.type === 'vigilance' ? 'alert-vigilance' : 'alert-info'}`;
-                    div.innerHTML = `<strong>${alert.msg}</strong>`;
-                    ui.alertsList.appendChild(div);
-                });
-            }
-        }
-
-        function showLoader(text) {
-            ui.loaderText.textContent = text;
-            ui.loader.style.display = 'flex';
-            ui.loader.setAttribute('aria-hidden', 'false');
-        }
-        function hideLoader() {
-            ui.loader.style.display = 'none';
-            ui.loader.setAttribute('aria-hidden', 'true');
-        }
-        function showToast(msg, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            if (type === 'warning') toast.style.background = 'var(--c-orange-600)';
-            toast.textContent = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3500);
-        }
-
-        // --- ONBOARDING PREMIÈRE UTILISATION ---
-        (function checkFirstTime() {
-            if (!localStorage.getItem('pmtOcrTipsShown')) {
-                showOnboardingModal();
-                localStorage.setItem('pmtOcrTipsShown', 'true');
-            }
-        })();
-
-        function showOnboardingModal() {
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85); z-index: 10000;
-            display: flex; align-items: center; justify-content: center;
-            padding: 1rem;
-        `;
-            modal.innerHTML = `
-            <div style="background:white; padding:2.5rem; border-radius:1rem; max-width:450px; text-align:center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                <div style="font-size:4rem; margin-bottom:1rem;">📸</div>
-                <h2 style="margin-bottom:1rem; color:var(--c-gray-900); font-size:1.5rem;">Optimisez vos photos CERFA</h2>
-                <div style="text-align:left; line-height:2; color:var(--c-gray-700); margin-bottom:2rem; font-size:0.95rem;">
-                    Pour une extraction OCR optimale :
-                    <ul style="margin-top:0.75rem; padding-left:1.5rem;">
-                        <li><strong>Fond uni</strong> (bureau blanc ou gris)</li>
-                        <li><strong>Éclairage uniforme</strong> (éviter ombres)</li>
-                        <li><strong>Document bien à plat</strong></li>
-                        <li><strong>Pas de reflets</strong> sur le papier</li>
-                    </ul>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" 
-                        style="width:100%; padding:1rem; background:var(--c-blue-600); color:white; border:none; border-radius:0.75rem; font-weight:600; cursor:pointer; font-size:1rem;">
-                    J'ai compris, démarrer ✓
-                </button>
-            </div>
-        `;
-            document.body.appendChild(modal);
-        }
-
+        console.log("✅ CaspoScan prêt - Mode HDS actif");
     </script>
-
 </body>
 
 </html>
