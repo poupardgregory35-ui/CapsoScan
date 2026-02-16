@@ -435,6 +435,17 @@
                 <span style="font-size:0.75rem; color:var(--c-gray-600); font-weight:400;">JPEG, PNG ou PDF</span>
             </div>
             <div class="card-body">
+                <!-- HDS Notice -->
+                <div
+                    style="background: var(--c-blue-50); border-left: 4px solid var(--c-blue-600); padding: 0.75rem; border-radius: 0.4rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--c-blue-600); display: flex; align-items: start; gap: 0.75rem;">
+                    <div style="font-size: 1.2rem; margin-top: -2px;">🔒</div>
+                    <div>
+                        <strong style="display: block; margin-bottom: 2px;">Conformité HDS & RGPD</strong>
+                        Analyse instantanée en RAM. Les documents ne sont ni affichés, ni stockés, ni transmis. Purge
+                        immédiate après lecture.
+                    </div>
+                </div>
+
                 <input type="file" id="fileInput" accept="image/*,application/pdf" aria-label="Sélectionner un fichier">
 
                 <div class="upload-area" id="dropZone" role="button" tabindex="0">
@@ -450,14 +461,19 @@
                     </div>
                 </div>
 
-                <div id="previewContainer" style="display:none;">
-                    <button class="remove-img-btn" id="removeImgBtn" aria-label="Supprimer le document">&times;</button>
-                    <div id="previewWrapper" style="width:100%; display:flex; justify-content:center;"></div>
-                    <div style="background:rgba(0,0,0,0.8); color:white; padding:0.5rem; text-align:center; font-size:0.75rem; display:flex; justify-content:space-between; padding-left:1rem; padding-right:1rem;"
+                <div id="previewContainer" style="display:none; flex-direction:column; align-items:center; gap:1rem;">
+                    <div id="previewWrapper"
+                        style="width:100%; min-height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:0.5rem; padding:1.5rem; text-align:center;">
+                        <div style="font-size:2.5rem; margin-bottom:0.5rem;">📄</div>
+                        <div style="color:var(--c-emerald-600); font-weight:700;">DOCUMENT EN MÉMOIRE SÉCURISÉE</div>
+                        <div style="font-size:0.75rem; color:var(--c-gray-600); margin-top:5px;">L'image a été purgée de
+                            l'affichage pour votre confidentialité (HDS)</div>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.8); color:white; padding:0.5rem; text-align:center; font-size:0.75rem; display:flex; justify-content:space-between; width:100%; border-radius:0.4rem; padding-left:1rem; padding-right:1rem;"
                         id="fileMeta">
                         <span id="fileName">doc.pdf</span>
-                        <button id="retryOcrBtn" class="btn-secondary" style="display:inline-block;">🔄
-                            Relancer</button>
+                        <button id="retryOcrBtn" class="btn-secondary" style="display:inline-block;">🔄 Relancer
+                            l'analyse</button>
                     </div>
                 </div>
             </div>
@@ -645,12 +661,10 @@
         async function processImage(file) {
             const reader = new FileReader();
             reader.onload = async (e) => {
-                const img = document.createElement('img');
-                img.id = 'previewImage';
-                img.src = e.target.result;
-                ui.previewWrapper.innerHTML = '';
-                ui.previewWrapper.appendChild(img);
+                // Image stockée uniquement dans une variable locale, non attachée au DOM
                 currentImageSource = e.target.result;
+                // On déclenche l'OCR
+                await runOCR(currentImageSource);
             };
             reader.readAsDataURL(file);
         }
@@ -662,16 +676,16 @@
             const scale = 2.0;
             const viewport = page.getViewport({ scale });
             const canvas = document.createElement('canvas');
-            canvas.id = 'previewCanvas';
             const context = canvas.getContext('2d');
             canvas.height = viewport.height;
             canvas.width = viewport.width;
 
             await page.render({ canvasContext: context, viewport: viewport }).promise;
-            ui.previewWrapper.innerHTML = '';
-            ui.previewWrapper.appendChild(canvas);
             const enhancedCanvas = enhanceImageForOCR(canvas);
             currentImageSource = enhancedCanvas.toDataURL('image/jpeg', 0.9);
+
+            // On déclenche l'OCR
+            await runOCR(currentImageSource);
         }
 
         function enhanceImageForOCR(canvas) {
@@ -693,10 +707,15 @@
 
         async function runOCR(imageSource) {
             try {
-                ui.loaderText.textContent = "Initialisation du moteur OCR...";
+                ui.loaderText.textContent = "Analyse OCR sécurisée en mémoire (RAM)...";
                 ui.loader.style.display = 'flex';
                 const worker = await initOCR();
                 const { data: { text } } = await worker.recognize(imageSource);
+
+                // PURGE IMMÉDIATE HDS : Suppression de la source image dès que le texte est extrait
+                currentImageSource = null;
+                imageSource = null;
+
                 smartExtract(text);
             } catch (err) {
                 console.error('OCR Error:', err);

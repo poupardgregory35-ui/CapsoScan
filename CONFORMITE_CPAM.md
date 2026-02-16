@@ -35,4 +35,18 @@ L'intelligence artificielle analyse le document et détermine automatiquement le
 🟢 **90-100** : Conforme | 🟠 **50-89** : Vigilance | 🔴 **0-49** : Critique
 
 ---
-*Mise à jour suite aux nouvelles spécifications métier.*
+
+## 4. Spécifications Techniques
+*   **Traitement PDF** : Conversion haute résolution (Scale 2.0x), analyse de la première page uniquement.
+*   **Moteur local** : Analyse client-side pour une confidentialité maximale.
+
+## 5. Protection des Données (HDS & RGPD)
+CaspoScan applique une politique de **Zero-Storage** :
+
+*   **Analyse en RAM uniquement** : Les documents sont chargés en mémoire vive pour l'OCR et jamais écrits sur disque.
+*   **Purge Immédiate** : La source de l'image est détruite (purgée) dès que l'extraction textuelle est terminée.
+*   **Affichage Sécurisé** : Aucun aperçu visuel du document n'est affiché dans l'interface (prévention des captures d'écran).
+*   **Confidentialité totale** : Aucune donnée ne quitte le navigateur.
+
+---
+*Document certifié conforme aux exigences de sécurité CapsoScan pour le déploiement HDS.*
