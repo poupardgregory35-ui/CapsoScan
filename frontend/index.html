@@ -11,89 +11,63 @@
 </head>
 
 <body class="bg-gray-50 min-h-screen">
-    <!-- TEST AMÉLIORÉ - Message en haut -->
+    <!-- HEADER DE SECOURS - À METTRE TOUT EN HAUT -->
     <div
-        style="background: #ff0000; color: white; padding: 10px; text-align: center; font-size: 18px; position: relative; z-index: 10;">
-        🔴 MESSAGE DE TEST (peut être déplacé) 🔴
+        style="position: fixed; top: 0; left: 0; right: 0; background: #1e3c72; color: white; padding: 20px; text-align: center; font-size: 24px; z-index: 9999;">
+        ⚕️✓ CapsoScan - HEADER DE SECOURS (visible partout)
     </div>
 
-    <!-- HEADER - Visible normalement -->
-    <header
-        style="background: white; border-bottom: 2px solid #1e3c72; padding: 10px 20px; font-family: Arial, sans-serif; width: 100%; position: relative; z-index: 5;">
-        <div
-            style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+    <!-- Décale le contenu pour pas qu'il soit caché -->
+    <div style="margin-top: 100px;">
 
-            <!-- PARTIE GAUCHE : TON VRAI LOGO -->
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <!-- Cercle bleu avec icône -->
-                <div
-                    style="background: #1e3c72; width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                    <span style="color: white; font-size: 30px;">⚕️✓</span>
-                </div>
-                <!-- Texte de TON logo -->
-                <div>
-                    <div style="font-size: 28px; font-weight: bold; color: #1e3c72;">CapsoScan</div>
-                    <div style="font-size: 14px; color: #666;">Le copilote de la conformité</div>
-                </div>
-            </div>
-
-            <!-- PARTIE DROITE : Visible partout -->
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <div style="color: #1e3c72; font-weight: 500;" class="hidden md:block">Vérifier-Analyser-Valider</div>
-                <div
-                    style="background: #e6f0ff; color: #1e3c72; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; border: 1px solid #1e3c72;">
-                    HDS</div>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex justify-center">
-        <div class="max-w-2xl w-full bg-white rounded-xl shadow-lg p-6">
-            <!-- Information HDS Rappel -->
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-2 mb-6 text-sm">
-                <p class="text-blue-700">
-                    🔒 Conforme HDS : Données lues en mémoire puis immédiatement purgées<br>
-                    ✅ Aucun stockage - Aucun affichage des documents
-                </p>
-            </div>
-
-            <!-- Zone de Capture (Optimisée Mobile/Terrain) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <!-- Option 1: Importer (Fichier/Galerie) -->
-                <div
-                    class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-all group">
-                    <input type="file" id="fileInput" accept="image/*" class="hidden">
-                    <label for="fileInput" class="cursor-pointer block">
-                        <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">📁</div>
-                        <span class="block text-blue-600 font-bold mb-1">Importer</span>
-                        <p class="text-[10px] text-gray-500 uppercase tracking-widest">Document existant</p>
-                    </label>
+        <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex justify-center">
+            <div class="max-w-2xl w-full bg-white rounded-xl shadow-lg p-6">
+                <!-- Information HDS Rappel -->
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-2 mb-6 text-sm">
+                    <p class="text-blue-700">
+                        🔒 Conforme HDS : Données lues en mémoire puis immédiatement purgées<br>
+                        ✅ Aucun stockage - Aucun affichage des documents
+                    </p>
                 </div>
 
-                <!-- Option 2: Prendre en photo (Appareil photo direct) -->
-                <div
-                    class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-all group">
-                    <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
-                    <label for="cameraInput" class="cursor-pointer block">
-                        <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">📸</div>
-                        <span class="block text-emerald-600 font-bold mb-1">Photographier</span>
-                        <p class="text-[10px] text-gray-500 uppercase tracking-widest">Capture terrain</p>
-                    </label>
+                <!-- Zone de Capture (Optimisée Mobile/Terrain) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <!-- Option 1: Importer (Fichier/Galerie) -->
+                    <div
+                        class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                        <input type="file" id="fileInput" accept="image/*" class="hidden">
+                        <label for="fileInput" class="cursor-pointer block">
+                            <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">📁</div>
+                            <span class="block text-blue-600 font-bold mb-1">Importer</span>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest">Document existant</p>
+                        </label>
+                    </div>
+
+                    <!-- Option 2: Prendre en photo (Appareil photo direct) -->
+                    <div
+                        class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                        <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
+                        <label for="cameraInput" class="cursor-pointer block">
+                            <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">📸</div>
+                            <span class="block text-emerald-600 font-bold mb-1">Photographier</span>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest">Capture terrain</p>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Zone de résultat (cachée au départ) -->
+                <div id="result" class="mt-6 hidden"></div>
+
+                <!-- Bouton de réinitialisation (cachée au départ) -->
+                <div id="resetContainer" class="mt-4 text-center hidden">
+                    <button id="resetBtn"
+                        class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        ↺ Nouvelle analyse
+                    </button>
                 </div>
             </div>
-
-            <!-- Zone de résultat (cachée au départ) -->
-            <div id="result" class="mt-6 hidden"></div>
-
-            <!-- Bouton de réinitialisation (cachée au départ) -->
-            <div id="resetContainer" class="mt-4 text-center hidden">
-                <button id="resetBtn"
-                    class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                    ↺ Nouvelle analyse
-                </button>
-            </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script>
         // === Éléments DOM ===
