@@ -11,44 +11,20 @@
 </head>
 
 <body class="bg-gray-50 min-h-screen">
-    <!-- HEADER - TON LOGO OFFICIEL -->
-    <header
-        style="background: white; border-bottom: 3px solid #1e3c72; padding: 15px 0; width: 100%; font-family: Arial, sans-serif;">
-        <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+    <!-- HEADER - IMAGE LOGO -->
+    <header style="background: white; border-bottom: 3px solid #1e3c72; padding: 10px 0; width: 100%;">
+        <div
+            style="max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;">
 
-            <!-- Version desktop (tout sur une ligne) -->
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <!-- Logo texte uniquement (pas d'icône) -->
-                <div>
-                    <span
-                        style="font-size: 32px; font-weight: 800; color: #1e3c72; letter-spacing: -0.5px;">CapsoScan</span>
-                </div>
+            <!-- TON IMAGE LOGO -->
+            <img src="Scan.png" alt="CapsoScan Logo" style="height: 60px; width: auto;">
 
-                <!-- Slogan et actions -->
-                <div style="display: flex; align-items: center; gap: 30px;">
-                    <span style="font-size: 18px; color: #4a5568; font-weight: 400;">Le copilote de la conformité</span>
-                    <span
-                        style="font-size: 16px; color: #1e3c72; font-weight: 500; border-left: 2px solid #1e3c72; padding-left: 20px;">
-                        Vérifier-Analyser-Valider
-                    </span>
-                    <span
-                        style="background: #e6f0ff; color: #1e3c72; padding: 5px 15px; border-radius: 20px; font-size: 13px; font-weight: 600;">HDS</span>
-                </div>
-            </div>
-
-            <!-- Version mobile (centré) -->
-            <div style="display: none; text-align: center;">
-                <div style="font-size: 28px; font-weight: 800; color: #1e3c72; margin-bottom: 5px;">CapsoScan</div>
-                <div style="font-size: 14px; color: #4a5568; margin-bottom: 5px;">Le copilote de la conformité</div>
-                <div style="font-size: 12px; color: #1e3c72; font-weight: 500;">Vérifier-Analyser-Valider</div>
-                <div style="margin-top: 8px;">
-                    <span
-                        style="background: #e6f0ff; color: #1e3c72; padding: 3px 12px; border-radius: 20px; font-size: 11px;">HDS</span>
-                </div>
-            </div>
+            <!-- Badge HDS (optionnel) -->
+            <div
+                style="background: #e6f0ff; color: #1e3c72; padding: 5px 15px; border-radius: 20px; font-size: 13px; font-weight: 600;">
+                HDS</div>
         </div>
     </header>
-
     <!-- Style pour le responsive -->
     <style>
         @media (max-width: 768px) {
