@@ -4,71 +4,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CapsoScan - Contrôle PMT</title>
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏥</text></svg>">
+    <title>CapsoScan</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-50 min-h-screen">
-    <!-- HEADER SIMPLE - SANS LOGO, 100% FONCTIONNEL -->
-    <header style="background: white; border-bottom: 2px solid #1e3c72; padding: 15px 0; width: 100%;">
-        <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-            <h1 style="font-size: 28px; font-weight: bold; color: #1e3c72; margin: 0;">CapsoScan</h1>
+<body class="bg-gray-100">
+    <!-- Header ultra simple -->
+    <div class="bg-white shadow-sm border-b border-gray-200 py-4">
+        <div class="max-w-4xl mx-auto px-4">
+            <h1 class="text-2xl font-bold text-blue-900">CapsoScan</h1>
         </div>
-    </header>
-    <!-- Style pour le responsive -->
-    <style>
-        @media (max-width: 768px) {
-            header>div>div:first-child {
-                display: none !important;
-            }
+    </div>
 
-            header>div>div:last-child {
-                display: block !important;
-            }
-        }
-    </style>
+    <!-- Contenu principal -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl mb-4">Analyse de PMT</h2>
+            <p class="text-gray-600 mb-4">Importez votre prescription médicale de transport</p>
 
-    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex justify-center">
-        <div class="max-w-2xl w-full bg-white rounded-xl shadow-lg p-6">
-            <!-- Information HDS Rappel -->
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-2 mb-6 text-sm">
-                <p class="text-blue-700">
-                    🔒 Conforme HDS : Données lues en mémoire puis immédiatement purgées<br>
-                    ✅ Aucun stockage - Aucun affichage des documents
-                </p>
+            <!-- Zone d'upload -->
+            <div
+                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
+                <input type="file" id="fileInput" accept="image/*" class="hidden">
+                <label for="fileInput" class="cursor-pointer">
+                    <div class="text-5xl mb-4">📄</div>
+                    <span class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold">
+                        Importer une PMT
+                    </span>
+                </label>
             </div>
 
-            <!-- Zone de Capture (Optimisée Mobile/Terrain) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <!-- Option 1: Importer (Fichier/Galerie) -->
-                <div
-                    class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-all group">
-                    <input type="file" id="fileInput" accept="image/*" class="hidden">
-                    <label for="fileInput" class="cursor-pointer block">
-                        <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">📁</div>
-                        <span class="block text-blue-600 font-bold mb-1">Importer</span>
-                        <p class="text-[10px] text-gray-500 uppercase tracking-widest">Document existant</p>
-                    </label>
-                </div>
-
-                <!-- Option 2: Prendre en photo (Appareil photo direct) -->
-                <div
-                    class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-all group">
-                    <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
-                    <label for="cameraInput" class="cursor-pointer block">
-                        <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">📸</div>
-                        <span class="block text-emerald-600 font-bold mb-1">Photographier</span>
-                        <p class="text-[10px] text-gray-500 uppercase tracking-widest">Capture terrain</p>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Zone de résultat (cachée au départ) -->
+            <!-- Résultat -->
             <div id="result" class="mt-6 hidden"></div>
 
-            <!-- Bouton de réinitialisation (cachée au départ) -->
+            <!-- Bouton de réinitialisation (caché au départ) -->
             <div id="resetContainer" class="mt-4 text-center hidden">
                 <button id="resetBtn"
                     class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
@@ -77,16 +46,15 @@
             </div>
         </div>
     </main>
-    </div>
 
     <script>
         // === Éléments DOM ===
         const fileInput = document.getElementById('fileInput');
-        const cameraInput = document.getElementById('cameraInput');
+        const cameraInput = document.getElementById('cameraInput'); // Will be null in this simplified version
         const resultDiv = document.getElementById('result');
         const resetContainer = document.getElementById('resetContainer');
         const resetBtn = document.getElementById('resetBtn');
-        const mainCard = document.querySelector('.max-w-2xl');
+        const mainCard = document.querySelector('.bg-white');
 
         // === Règles de scoring CPAM ===
         const SCORING_RULES = {
@@ -217,6 +185,7 @@
             else if (percentage >= 75) color = "BLEU";
             else if (percentage >= 50) color = "ORANGE";
             else if (percentage >= 25) color = "ROUGE";
+            else if (percentage >= 0) color = "ROUGE";
 
             const colorClass = COLOR_THRESHOLDS[color].class;
 
@@ -299,7 +268,7 @@
             `;
 
             resultDiv.classList.remove('hidden');
-            resetContainer.classList.remove('hidden');
+            if (resetContainer) resetContainer.classList.remove('hidden');
         }
 
         // === Fonction principale de traitement ===
@@ -315,7 +284,7 @@
                     <p class="text-sm text-gray-400">Lecture HDS - Données non stockées</p>
                 </div>
             `;
-            resetContainer.classList.add('hidden');
+            if (resetContainer) resetContainer.classList.add('hidden');
 
             try {
                 // Simuler l'OCR (pas de Tesseract !)
@@ -338,7 +307,7 @@
                         <p class="text-red-600">Veuillez réessayer</p>
                     </div>
                 `;
-                resetContainer.classList.remove('hidden');
+                if (resetContainer) resetContainer.classList.remove('hidden');
             }
         }
 
@@ -363,7 +332,7 @@
         if (resetBtn) {
             resetBtn.addEventListener('click', function () {
                 resultDiv.classList.add('hidden');
-                resetContainer.classList.add('hidden');
+                if (resetContainer) resetContainer.classList.add('hidden');
                 resultDiv.innerHTML = '';
             });
         }
