@@ -11,9 +11,15 @@
 </head>
 
 <body class="bg-gray-50 min-h-screen">
-    <!-- HEADER 100% FIABLE - À COLLER DANS index.html -->
+    <!-- TEST AMÉLIORÉ - Message en haut -->
+    <div
+        style="background: #ff0000; color: white; padding: 10px; text-align: center; font-size: 18px; position: relative; z-index: 10;">
+        🔴 MESSAGE DE TEST (peut être déplacé) 🔴
+    </div>
+
+    <!-- HEADER - Visible normalement -->
     <header
-        style="background: white; border-bottom: 2px solid #1e3c72; padding: 10px 20px; font-family: Arial, sans-serif; width: 100%;">
+        style="background: white; border-bottom: 2px solid #1e3c72; padding: 10px 20px; font-family: Arial, sans-serif; width: 100%; position: relative; z-index: 5;">
         <div
             style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
 
@@ -40,11 +46,6 @@
             </div>
         </div>
     </header>
-
-    <!-- TEST VISUEL - À GARDER TEMPORAIREMENT -->
-    <div style="background: #ff0000; color: white; padding: 10px; text-align: center; font-size: 18px;">
-        🔴 SI TU VOIS CE MESSAGE, LE HEADER EST LÀ (scroll up) 🔴
-    </div>
 
     <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex justify-center">
         <div class="max-w-2xl w-full bg-white rounded-xl shadow-lg p-6">
