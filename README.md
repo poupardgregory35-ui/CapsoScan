@@ -35,3 +35,4 @@ Le moteur de règles calcule un score de conformité sur 100 :
 - **Absence de cachet** : -10 points
 
 Un score inférieur à 80 génère une alerte critique.
+ 
